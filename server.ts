@@ -3,13 +3,17 @@
 import express, { Request, Response } from 'express';
 import { authRouter } from './src/Authorization/authorization.controller';
 import dotenv from 'dotenv';
-
+import cors from 'cors'
 dotenv.config();
+
+const corsOptions = {
+    methods: 'GET,POST', // Allow only these methods
+    allowedHeaders: ['Content-Type', 'Authorization'] // Allow only these headers
+};
 
 const app = express();
 app.use(express.json());
-
-// mongoose.connect('mongodb://localhost:27017/mydatabase').then(() => console.log('MongoDB connected'));
+app.use(cors(corsOptions));
 
 app.use('/auth', authRouter);
   
