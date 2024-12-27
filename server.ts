@@ -4,6 +4,8 @@ import express, { Request, Response } from 'express';
 import { authRouter } from './src/Authorization/authorization.controller';
 import dotenv from 'dotenv';
 import cors from 'cors'
+import { authentication } from './src/middleware/authentication'
+import bodyParser from 'body-parser';
 dotenv.config();
 
 const corsOptions = {
@@ -12,10 +14,11 @@ const corsOptions = {
 };
 
 const app = express();
-app.use(express.json());
-app.use(cors(corsOptions));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
+app.use(cors(corsOptions))
 
-app.use('/auth', authRouter);
+app.use('/auth', authentication, authRouter);
   
 
 
