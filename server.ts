@@ -1,11 +1,11 @@
 
 // import mongoose from 'mongoose'
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { authRouter } from './src/Authorization/authorization.controller';
 import dotenv from 'dotenv';
 import cors from 'cors'
-import { authentication } from './src/middleware/authentication'
 import bodyParser from 'body-parser';
+import { connectDB } from './src/DB/DB';
 dotenv.config();
 
 const corsOptions = {
@@ -18,9 +18,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 app.use(cors(corsOptions))
 
-app.use('/auth', authentication, authRouter);
+app.use('/auth', authRouter);
   
 
 
 
 app.listen(3452, () => console.log(`Server running on http://localhost:${3452}`));
+connectDB()
