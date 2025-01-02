@@ -35,10 +35,13 @@ router.post("/singup", async (req: Request, res: Response): Promise<any> => {
     return res.status(200).json(tokens);
 });
 
-router.post("/verify", (req: Request, res: Response): any => {
+router.get("/verify", (req: Request, res: Response): any => {
+    console.log(req.headers.authorization);
+
+    
     const token = req.headers.authorization?.split(" ")[1] || "";
     const decoded = verifyToken(token, "access");
-    if (!decoded) return res.status(401).send("не авторизован");
+    if (!decoded) return res.status(422).send("не авторизован");
     return res.status(200).json(decoded);
 });
 
