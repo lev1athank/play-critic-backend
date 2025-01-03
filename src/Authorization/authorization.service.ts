@@ -3,8 +3,8 @@ import { createToken, verifyToken } from "../JWT/JWT_fun";
 import { JwtPayload } from "jsonwebtoken";
 
 type Ttokens = {
-    "Access_token": string;
-    "Refresh_token": string;
+    "AccessToken": string;
+    "RefreshToken": string;
 };
 
 export class AuthService {
@@ -32,8 +32,8 @@ export class AuthService {
         await user.save();
 
 		return {
-            "Access_token": accessToken,
-            "Refresh_token": refreshToken,
+            "AccessToken": accessToken,
+            "RefreshToken": refreshToken,
         };
 
 	}
@@ -58,8 +58,8 @@ export class AuthService {
             user.refrashToken = jwtRefresh;
             await user.save();
             return {
-                "Access_token": jwtAccess,
-                "Refresh_token": jwtRefresh,
+                "AccessToken": jwtAccess,
+                "RefreshToken": jwtRefresh,
             };
         } catch (err) {
             return false;
@@ -97,8 +97,8 @@ export class AuthService {
         await user.save();
 
         return {
-            "Access_token": accessToken,
-            "Refresh_token": refreshToken,
+            "AccessToken": accessToken,
+            "RefreshToken": refreshToken,
         };
     }
 }

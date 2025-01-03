@@ -10,7 +10,7 @@ export const createToken = (id:string, login:string, key: 'access' | 'refresh'):
         'id': id,
         'login': login,
         'date': Math.floor(Date.now() / 1000)
-    }, key == "access" ? JWTsecretAccesskey : JWTsecretRefreshKey, { expiresIn: key == "access" ? '15m' : '15d', });
+    }, key == "access" ? JWTsecretAccesskey : JWTsecretRefreshKey, { expiresIn: key == "access" ? '15m' : '15d' });
 };
 
 export const verifyToken = (
@@ -27,6 +27,8 @@ export const verifyToken = (
         );
         return a;
     } catch (err) {
+        console.log(err);
+        
         return false;
     }
 };
