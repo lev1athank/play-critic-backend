@@ -5,16 +5,16 @@ interface IUser extends Document {
     _id: Types.ObjectId;
     login: string;
     password: string;
-    refrashToken: string;
+    refreshToken: string;
     comparePassword: (password: string) => Promise<boolean>;
-    compareRefrashToken: (refrashToken: string) => Promise<boolean>;
-    updateRefrashToken: (refrashToken: string) => void;
+    compareRefreshToken: (refreshToken: string) => Promise<boolean>;
+    updateRefreshToken: (refreshToken: string) => void;
 }
 
 const userSchema = new Schema<IUser>({
     login: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    refrashToken: { type: String, required: false },
+    refreshToken: { type: String, required: false },
 });
 
 userSchema.pre<IUser>("save", async function (next) {
@@ -33,14 +33,14 @@ userSchema.methods.comparePassword = async function (password: string) {
     return bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.compareRefrashToken = async function (oldRefrashToken: string):Promise<Boolean> {
-  console.log(this.refrashToken);
+userSchema.methods.compareRefreshToken = async function (oldRefreshToken: string):Promise<Boolean> {
+  console.log(this.refreshToken);
   
-    return oldRefrashToken == this.refrashToken
+    return oldRefreshToken == this.refreshToken
 };
 
-userSchema.methods.updateRefrashToken = async function (refrashToken: string) {
-  this.refrashToken = refrashToken
+userSchema.methods.updateRefreshToken = async function (refreshToken: string) {
+  this.refreshToken = refreshToken
 
 }
 
