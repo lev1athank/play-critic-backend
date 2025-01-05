@@ -41,7 +41,6 @@ export const verifyToken = (
             date: payload.date,
         };
     } catch (err) {
-        console.log(err);
         return false; // Возвращаем false в случае ошибки
     }
 };

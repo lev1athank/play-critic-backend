@@ -3,6 +3,8 @@ import { createToken, verifyToken } from "../JWT/JWT_fun";
 import { JwtPayload } from "jsonwebtoken";
 import { Ttokens, userData } from "./auth.type";
 import { ObjectId } from "mongodb";
+
+
 export class AuthService {
     public async login(data: userData): Promise<boolean | Ttokens> {
         const user = await DBUserSchema.findOne({
@@ -12,7 +14,6 @@ export class AuthService {
         if (!user) return false;
 
         const verifyPassword = await user.comparePassword(data.password);
-        console.log(verifyPassword, 121);
 
         if (!verifyPassword) return false;
 

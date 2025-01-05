@@ -96,7 +96,7 @@ router.post(
     }
 );
 
-router.post("/logout", async (req: Request, res: Response) => {
+router.get("/logout", async (req: Request, res: Response) => {
     const accessToken: string = req.cookies.accessToken;
     
     const isDel = await authService.logout(accessToken);
