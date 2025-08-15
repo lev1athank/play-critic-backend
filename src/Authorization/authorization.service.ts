@@ -1,21 +1,24 @@
 import { DBUserSchema } from "../DB/DbSchema/user";
+import { UsersDataSchema } from "../DB/DbSchema/usersData";
 import { createToken, verifyToken } from "../JWT/JWT_fun";
-import { JwtPayload } from "jsonwebtoken";
 import { Ttokens, userData } from "./auth.type";
-import { ObjectId } from "mongodb";
 
+const result = (code: number = 401, message: string = "неизвестная ошибка"): {code: number, message: string} => ({
+    code,
+    message,
+})
 
 export class AuthService {
-    public async login(data: userData): Promise<boolean | Ttokens> {
+    public async login(data: userData): Promise<{code: number, message: string} | Ttokens> {
         const user = await DBUserSchema.findOne({
             login: data.login,
         });
 
-        if (!user) return false;
+        if (!user) return result(422, "Пользователь не найден");
 
         const verifyPassword = await user.comparePassword(data.password);
 
-        if (!verifyPassword) return false;
+        if (!verifyPassword) return result(422, "Неверный пароль");
 
         const accessToken = createToken(
             user._id.toString(),
@@ -42,6 +45,14 @@ export class AuthService {
             const user = await DBUserSchema.create({
                 login: data.login,
                 password: data.password,
+            });
+
+            await UsersDataSchema.create({
+                userId: user._id,
+                descriptionProfile: "",
+                loveGame: "",
+                avatar: "",
+                isCloseProfile: false,
             });
 
             const accessToken = createToken(

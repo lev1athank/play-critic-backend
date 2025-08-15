@@ -1,23 +1,32 @@
 import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../JWT/JWT_fun";
 
+const publicPaths = ["/getUserGames", "/getAllUsersName", "/getUserInfo", "/getStatistics", "/getReviews"];
+
 export const authentication = (
     req: Request,
     res: Response,
     next: NextFunction
 ): any => {
-    const accessToken = req.headers.authorization;
-    if (!accessToken)
+    console.log(`Authentication middleware called for path: ${req.path}`);
+
+    
+    const accessToken = req.cookies.accessToken;
+
+    if (!accessToken) {
+        if (publicPaths.includes(req.path))
+            return next();
         return res.status(401).send("не авторизован");
+    }
 
     try {
-        const token = accessToken?.split(" ")[1] || "";
-        const decoded = verifyToken(token, "access");
-        if(!decoded) return res.status(401).send("не авторизован");
-        // req = decoded
+        const decoded = verifyToken(accessToken, "access");
+
+        if (typeof decoded === "boolean") return res.status(401).send("не авторизован");
+
+        req.JWT = decoded
         next();
     } catch (err) {
-            res.status(401).json({ error: "Недействительный токен" });
+        res.status(401).json({ error: "Недействительный токен" });
     }
-}; 
- 
+};
