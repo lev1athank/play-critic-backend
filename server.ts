@@ -1,3 +1,5 @@
+import { imgRouter } from './src/source/img';
+import path from 'path';
 import { searchRouter } from './src/Search/search.controller';
 // import mongoose from 'mongoose'
 import express from "express";
@@ -21,13 +23,14 @@ const corsOptions = {
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cookieParser())
 
 app.use(cors(corsOptions))
 
 app.use("/auth", authRouter)
 app.use("/api", authentication, gameRouter, searchRouter)
+app.use("/img", imgRouter)
 // app.use("/api", gameRouter)
 
 app.listen(3452, () =>

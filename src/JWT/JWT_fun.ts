@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { userData } from "../Authorization/auth.type";
 dotenv.config();
 
 const JWTsecretAccesskey = process.env.JWTsecretAccessKey || "";

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../JWT/JWT_fun";
 
-const publicPaths = ["/getUserGames", "/getAllUsersName", "/getUserInfo", "/getStatistics", "/getReviews"];
+const publicPaths = ["/getUserGames", "/getAllUsersName", "/getUserInfo", "/getStatistics", "/getReviews", "/getGame"];
 
 export const authentication = (
     req: Request,

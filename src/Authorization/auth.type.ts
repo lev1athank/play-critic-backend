@@ -1,4 +1,9 @@
-export type userData = {
+export type REGuserData = {
+    login: string;
+    userName: string;
+    password: string;
+};
+export type AUTuserData = {
     login: string;
     password: string;
 };

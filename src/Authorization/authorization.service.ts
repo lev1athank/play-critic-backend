@@ -1,18 +1,20 @@
-import { DBUserSchema } from "../DB/DbSchema/user";
-import { UsersDataSchema } from "../DB/DbSchema/usersData";
+import { DBUser } from "../DB/DbSchema/user";
 import { createToken, verifyToken } from "../JWT/JWT_fun";
-import { Ttokens, userData } from "./auth.type";
+import { AUTuserData, REGuserData, Ttokens } from "./auth.type";
 
-const result = (code: number = 401, message: string = "неизвестная ошибка"): {code: number, message: string} => ({
+const result = (code: number = 401, message: string = "неизвестная ошибка"): { code: number, message: string } => ({
     code,
     message,
 })
 
 export class AuthService {
-    public async login(data: userData): Promise<{code: number, message: string} | Ttokens> {
-        const user = await DBUserSchema.findOne({
+    public async login(data: AUTuserData): Promise<{ code: number, message: string } | Ttokens> {
+
+        console.log(data);
+        
+        const user = await DBUser.findOne({
             login: data.login,
-        });
+        }).select("+password");
 
         if (!user) return result(422, "Пользователь не найден");
 
@@ -21,16 +23,17 @@ export class AuthService {
         if (!verifyPassword) return result(422, "Неверный пароль");
 
         const accessToken = createToken(
-            user._id.toString(),
+            (user._id as string).toString(),
             user.login,
             "access"
         );
         const refreshToken = createToken(
-            user._id.toString(),
+            (user._id as string).toString(),
             user.login,
             "refresh"
         );
 
+        user.userName = user.userName
         user.refreshToken = refreshToken; // Исправлено название поля
         await user.save();
 
@@ -40,32 +43,20 @@ export class AuthService {
         };
     }
 
-    public async signup(data: userData): Promise<boolean | Ttokens> {
+    public async signup(data: REGuserData): Promise<boolean | Ttokens> {
         try {
-            const user = await DBUserSchema.create({
-                login: data.login,
-                password: data.password,
-            });
-
-            await UsersDataSchema.create({
-                userId: user._id,
-                descriptionProfile: "",
-                loveGame: "",
-                avatar: "",
-                isCloseProfile: false,
-            });
-
-            const accessToken = createToken(
-                user._id.toString(),
+            // Создаём пользователя и профиль в одной транзакции
+            const user = await DBUser.createUserWithProfile(
                 data.login,
-                "access"
-            );
-            const refreshToken = createToken(
-                user._id.toString(),
-                data.login,
-                "refresh"
+                data.userName,
+                data.password
             );
 
+            // Создаём токены
+            const accessToken = createToken((user._id as string).toString(),  data.login, "access");
+            const refreshToken = createToken((user._id as string).toString(), data.login, "refresh");
+
+            // Обновляем refreshToken в документе пользователя
             user.refreshToken = refreshToken;
             await user.save();
 
@@ -79,6 +70,7 @@ export class AuthService {
         }
     }
 
+
     public async getRefreshToken(
         refreshToken: string
     ): Promise<boolean | Ttokens> {
@@ -90,19 +82,19 @@ export class AuthService {
 
         const decodedPayload = payload;
 
-        const user = await DBUserSchema.findById(decodedPayload.id);
+        const user = await DBUser.findById(decodedPayload.id).select("+refreshToken");
         if (!user) return false;
 
         const isValidRefreshToken = user.refreshToken === refreshToken;
         if (!isValidRefreshToken) return false;
 
         const accessToken = createToken(
-            user._id.toString(),
+            (user._id as string).toString(),
             user.login,
             "access"
         );
         const newRefreshToken = createToken(
-            user._id.toString(),
+            (user._id as string).toString(),
             user.login,
             "refresh"
         );
@@ -120,7 +112,7 @@ export class AuthService {
         let payload = verifyToken(accessToken, "access");
         try {
             if (!payload || typeof payload === "boolean") return false;
-            const isLogin = await DBUserSchema.findByIdAndUpdate(payload.id, {
+            const isLogin = await DBUser.findByIdAndUpdate(payload.id, {
                 $unset: { refreshToken: "" },
             });
 

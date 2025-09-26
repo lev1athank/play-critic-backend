@@ -5,11 +5,14 @@ import { GameService } from "./game.service";
 const router = Router();
 const gameService = new GameService();
 
-router.post("/getGame", async (req: Request, res: Response): Promise<any> => {
+router.get("/getGame", async (req: Request, res: Response): Promise<any> => {
+    console.log(req.query.name);
+    if (req.query?.name) {
+        const games = await gameService.getGame(req.query.name as string)
 
-    const games = await gameService.getGame(req.body.name)
-
-    return res.status(200).json({ game: games });
+        return res.status(200).json({ game: games });
+    }
+    return res.status(400).json({ error: "Имя игры не указано" });
 });
 
 router.get("/getUserGames", async (req: Request, res: Response): Promise<any> => {
@@ -28,9 +31,9 @@ router.get("/getStatistics", async (req: Request, res: Response): Promise<any> =
     if (!req.query.appid) {
         return res.status(400).json({ error: "appid is required" });
     }
-    
+
     const games = await gameService.getStatistics(+req.query.appid);
-    
+
     return res.status(200).json({ data: games });
 });
 
@@ -41,8 +44,8 @@ router.get("/getReviews", async (req: Request, res: Response): Promise<any> => {
     }
 
     const review = await gameService.getReview(+req.query.appid, req.query?.start ? +req.query.start : 0, req.query?.newSort === 'false' ? false : true);
-    console.log(req.query.appid);
-    
+    console.log(review, 123);
+
     return res.status(200).json(review);
 });
 
@@ -70,7 +73,7 @@ router.delete("/deleteGame", async (req: Request, res: Response): Promise<any> =
     if (typeof req.query.appid === "undefined") {
         return res.status(400).json({ error: "appid is required" });
     }
-    
+
     const data = await gameService.deleteGame(req.JWT.id, +req.query.appid);
 
     if (!data) {

@@ -1,9 +1,10 @@
 export interface UpdateUserProfileRequest {
     userId: string;
+    userName?: string;
     descriptionProfile?: string;
-    loveGame?: string;
+    loveGame?: number[];
     isCloseProfile?: boolean;
-    avatar?: string;
+    avatar?: File;
 }
 
 export interface UpdateUserProfileResponse {

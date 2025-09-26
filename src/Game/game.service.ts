@@ -1,6 +1,6 @@
 import { DBGamesSchema } from "../DB/DbSchema/game";
 import { gameFinds } from "../DB/DbSchema/gameFind";
-import { DBUserSchema } from "../DB/DbSchema/user";
+import { DBUser, DBUserProfile } from "../DB/DbSchema/user";
 import { TgameFind } from "./game.type";
 import axios from 'axios';
 import { Types } from "mongoose";
@@ -52,10 +52,10 @@ export class GameService {
 	}
 
 	public async getUserIDForName(userName: string) {
-		const user = await DBUserSchema.findOne({
+		const user = await DBUser.findOne({
 			login: userName
 		})
-		return user ? user._id.toString() : null;
+		return user ? (user._id as string).toString() : null;
 	}
 
 
@@ -122,21 +122,12 @@ export class GameService {
 	public async deleteGame(id: string, appid: number) {
 		const objectId = new Types.ObjectId(id);
 
-		const existingGame = await DBGamesSchema.findOne({
+		const deletedGame = await DBGamesSchema.findOneAndDelete({
 			userId: objectId,
 			appid: appid
 		});
 
-		if (!existingGame) {
-			return false;
-		}
-
-		await DBGamesSchema.deleteOne({
-			userId: objectId,
-			appid: appid
-		});
-
-		return true;
+		return !!deletedGame;
 	}
 
 
@@ -181,21 +172,10 @@ export class GameService {
 		})
 			.skip(skip)
 			.limit(10)
-			.sort({ _id: newSort ? -1 : 1 });
+			.sort({ _id: newSort ? -1 : 1 }).populate('userId');
 
-		// Берём userId из отзывов
-		const userIds = reviews.map(review => review.userId);	
 
-		// Оставляем _id, чтобы потом маппить, и добавляем login
-		const users = await DBUserSchema.find(
-			{ _id: { $in: userIds } },
-			{ login: 1 } // _id оставляем по умолчанию
-		);
-
-		return reviews.map(review => ({
-			...review.toObject(),
-			userName: users.find(user => String(user._id) === String(review.userId))?.login || null
-		}));
+		return reviews
 	}
 
 
